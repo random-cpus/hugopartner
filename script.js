@@ -5,22 +5,43 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================== */
   const revealElements = document.querySelectorAll('.reveal-element');
   
-  const revealObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-        // Stop observing once revealed to maintain layout performance
-        observer.unobserve(entry.target);
+  // Helper to check if element's top is above the fold (within or above the current viewport)
+  const isAboveFold = (el) => {
+    const rect = el.getBoundingClientRect();
+    return rect.top < (window.innerHeight || document.documentElement.clientHeight);
+  };
+
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('reveal-hidden');
+          entry.target.classList.add('revealed');
+          // Stop observing once revealed to maintain layout performance
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+    
+    revealElements.forEach(element => {
+      // Only hide and animate if the element is completely below the fold
+      if (!isAboveFold(element)) {
+        element.classList.add('reveal-hidden');
+        revealObserver.observe(element);
+      } else {
+        // If it's above the fold, mark it as revealed immediately
+        element.classList.add('revealed');
       }
     });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  });
-  
-  revealElements.forEach(element => {
-    revealObserver.observe(element);
-  });
+  } else {
+    // Fallback for older browsers or legacy bots: ensure everything is revealed immediately
+    revealElements.forEach(element => {
+      element.classList.add('revealed');
+    });
+  }
 
   /* ==========================================
      2. DYNAMIC SPORT TABS TOGGLER

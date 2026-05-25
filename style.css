@@ -1202,11 +1202,19 @@ section {
 
 /* Scroll Fade Up Animation Classes */
 .reveal-element {
-  opacity: 0;
-  transform: translateY(35px);
+  /* Visible by default for SEO, raw HTML, bots, and disabled JavaScript */
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Hidden state only applied dynamically via script.js for elements below the fold */
+.reveal-element.reveal-hidden {
+  opacity: 0;
+  transform: translateY(35px);
+}
+
+/* Transition to revealed state */
 .reveal-element.revealed {
   opacity: 1;
   transform: translateY(0);
